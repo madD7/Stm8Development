@@ -19,3 +19,6 @@ tags
 *.pdf
 *.doc
 *.docx
+
+*.html
+*.chm
