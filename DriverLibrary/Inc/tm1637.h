@@ -72,6 +72,48 @@ Revision History ***************************************************************
 
 // Logical OR with the value to display dot on SSD 
 #define SHOW_DOT						(0b10000000)
+#define SSD_CLEAR						(0b00000000)
+
+#define KEY_0_VALUE						(0b11110111)
+
+// Subtract binary code of K1 SG1 
+#define GET_KEY_NUM(x)					((KEY_0_VALUE) - (x)) 
+
+// To Index the Segment Bin Value from array Segment 
+typedef enum
+{
+	SSD_SEG_A=0,
+	SSD_SEG_B,
+	SSD_SEG_C,
+	SSD_SEG_D,
+	SSD_SEG_E,
+	SSD_SEG_F,
+	SSD_SEG_G,
+	SSD_SEG_DOT,
+	SSD_SEG_CLEAR
+}SSD_SEG_Type;
+
+
+typedef enum
+{
+	KEY_NUM_0=0,
+	KEY_NUM_1,
+	KEY_NUM_2,
+	KEY_NUM_3,
+	KEY_NUM_4,
+	KEY_NUM_5,
+	KEY_NUM_6,
+	KEY_NUM_7,
+	KEY_NUM_8,
+	KEY_NUM_9,
+	KEY_NUM_A,
+	KEY_NUM_B,
+	KEY_NUM_C,
+	KEY_NUM_D,
+	KEY_NUM_E,
+	KEY_NUM_F
+}KEY_NUM_Type;
+
 
 #ifdef		_TM1637_MODULE_
 //
@@ -130,7 +172,7 @@ const uint8_t DigitToSegment[] = {
   0b01001011	// Z
   };
 
-const uint8_t CheckSegments[] = {
+const uint8_t SegmentValue[] = {
 	0b00000001,
 	0b00000010,
 	0b00000100,
@@ -138,11 +180,32 @@ const uint8_t CheckSegments[] = {
 	0b00010000,
 	0b00100000,
 	0b01000000,
-	0b10000000
+	0b10000000,
+	0b00000000
+	};
+
+
+const uint8_t KeyCodes[] = {		// Inverted values of the binary key codes
+	0b11110111,		// K1 SG1		// ~(0x08)
+	0b11110110,		// K1 SG2		// ~(0x09)
+	0b11110101,		// K1 SG3		// ~(0x0A)
+	0b11110100,		// K1 SG4		// ~(0x0B)
+	0b11110011,		// K1 SG5		// ~(0x0C)
+	0b11110010,		// K1 SG6		// ~(0x0D)
+	0b11110001,		// K1 SG7		// ~(0x0E)
+	0b11110000,		// K1 SG8		// ~(0x0F)
+	0b11101111,		// K2 SG1		// ~(0x10)
+	0b11101110,     // K2 SG2		// ~(0x11)
+    0b11101101,     // K2 SG3		// ~(0x12)
+    0b11101100,     // K2 SG4		// ~(0x13)
+    0b11101011,     // K2 SG5		// ~(0x14)
+    0b11101010,     // K2 SG6		// ~(0x15)
+
 	};
 #else
 extern const uint8_t DigitToSegment[];
-extern const uint8_t CheckSegments[];
+extern const uint8_t SegmentValue[];
+extern const uint8_t KeyCodes[];
 #endif 
 
 /*
@@ -157,8 +220,8 @@ extern const uint8_t CheckSegments[];
 void TM1637_Init();
 Status_Type TM1637_DisplayOn(uint8_t val, uint8_t status);
 Status_Type TM1637_WrByte(uint8_t Pos, uint8_t byte);
-Status_Type TM1637_WrString(uint8_t Pos, uint8_t* pBuf, uint8_t strlen, uint8_t* pDigitsWritten);
-
+Status_Type TM1637_WrString(uint8_t Pos, char* pBuf, uint8_t strlen, uint8_t* pDigitsWritten);
+Status_Type TM1637_GetKey(uint8_t *pKey);
 /*
  * @}
  */

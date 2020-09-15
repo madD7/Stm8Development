@@ -38,7 +38,8 @@ Revision History ***************************************************************
  * @{
  */
 
-#define BIT_DELAY		(20)
+#define BIT_DELAY			(100)
+#define SSD_DISPLAY_USED	(4)
 
 
 /*

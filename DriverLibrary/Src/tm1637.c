@@ -96,18 +96,18 @@ Notes		: None
 */
 static Status_Type TM1637_GetAck()
 {
-	uint8_t pinState=0;
+	uint8_t pinState=1;
 
 	TM1637_CLK_PIN_LOW();
 	_us_delay(BIT_DELAY);
 
 	//Read Data pin input
-	pinState = ( GPIO_ReadInputData(TM1637_PORT) & TM1637_DATA_PIN) ;
-	_us_delay(BIT_DELAY);
+	while (pinState)
+		pinState = ( GPIO_ReadInputData(TM1637_PORT) & TM1637_DATA_PIN);
+	
 	TM1637_CLK_PIN_HIGH();
 	_us_delay(BIT_DELAY);
 	TM1637_CLK_PIN_LOW();
-	_us_delay(BIT_DELAY);
 
 	return (Status_Type) pinState;
 }
@@ -125,7 +125,7 @@ static Status_Type TM1637_TxOnlyByte(uint8_t byte)
 	uint8_t cntr=0;
     Status_Type ackStatus=StatusSuccess;
 
-    for ( cntr=0; cntr < 8; cntr++)
+    for ( cntr=0; cntr < BITS_IN_BYTE; cntr++)
     {
         TM1637_CLK_PIN_LOW();
         _us_delay(BIT_DELAY);
@@ -229,7 +229,7 @@ Status_Type TM1637_WrByte(uint8_t Pos, uint8_t byte)
 		return ackStatus;
 
 	// Turn On Display
-	ackStatus = TM1637_DisplayOn(MAX_BRIGHTNESS, ENABLE);
+	//ackStatus = TM1637_DisplayOn(MAX_BRIGHTNESS, ENABLE);
 
 	return ackStatus;
 }
@@ -242,7 +242,7 @@ Output		: None
 Returns		: 
 Notes		: None
 */
-Status_Type TM1637_WrString(uint8_t Pos, uint8_t* pBuf, uint8_t strlen, uint8_t* pDigitsWritten)
+Status_Type TM1637_WrString(uint8_t Pos, char* pBuf, uint8_t strlen, uint8_t* pDigitsWritten)
 {
 	uint8_t byteBuf[MAX_SSD_DISPLAY+1];
 	uint8_t cntr=0;
@@ -302,6 +302,62 @@ Status_Type TM1637_WrString(uint8_t Pos, uint8_t* pBuf, uint8_t strlen, uint8_t*
 	return ackStatus;
 }
 
+
+/***************************************************************************************
+Description	: Get Key value
+Input		: 
+Output		: None
+Returns		: 
+Notes		: None
+*/
+Status_Type TM1637_GetKey(uint8_t *pKey)
+{
+	uint8_t key=0;	
+	uint8_t cntr=0;
+	uint8_t pinState=0;
+	Status_Type ackStatus=0;
+
+	*pKey = StatusFail;
+	// Send Command
+    TM1637_StartTx();
+    ackStatus = TM1637_TxOnlyByte(READ_KEY_SCAN_DATA_CMD);
+	if ( ackStatus != StatusSuccess )
+	{
+		TM1637_StopTx();
+        return ackStatus;
+	}
+
+	TM1637_DATA_PIN_HIGH();
+
+	for (cntr=0; cntr<BITS_IN_BYTE; cntr++)
+	{
+    	TM1637_CLK_PIN_LOW();
+
+		key = key >> 1;
+    	_us_delay(BIT_DELAY*5);
+
+    	TM1637_CLK_PIN_HIGH();
+    	_us_delay(BIT_DELAY/2);
+
+    	//Read Data pin input
+    	pinState = ( GPIO_ReadInputData(TM1637_PORT) & TM1637_DATA_PIN) ;
+		if ( pinState )
+			key |= (0x80);
+
+		pinState=0;
+		_us_delay(BIT_DELAY*5);
+	}
+
+	ackStatus = TM1637_GetAck();
+    TM1637_StopTx();
+	
+	*pKey = GET_KEY_NUM(key);
+
+	if ( *pKey > KEY_NUM_F )
+		*pKey = StatusFail;
+
+    return ackStatus;
+}
 
 /*
  * @}

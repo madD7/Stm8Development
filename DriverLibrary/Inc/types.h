@@ -61,6 +61,12 @@ typedef char                    int8_t;
 /**********************************************************************************************/
 
 
+#define BITS_IN_BYTE			(8)
+#define BITS_IN_CHAR			(8 * sizeof(char))
+#define BITS_IN_SHORT			(8 * sizeof(short))
+#define BITS_IN_INT				(8 * sizeof(int))
+#define BITS_IN_LONG			(8 * sizeof(long))
+
 #define U8_MAX     				(255)
 #define S8_MAX     				(127)
 #define S8_MIN     				(-128)
