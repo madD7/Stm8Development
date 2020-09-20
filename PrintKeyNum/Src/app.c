@@ -56,6 +56,8 @@ static void LoopTest2()
 	uint8_t SegCntr=0;
 	uint8_t value=0;
 
+	TM1637_DisplayOn(MAX_BRIGHTNESS, ENABLE);
+
 	for ( PosCntr=0; PosCntr < SSD_DISPLAY_USED; PosCntr++)
 	{
 		for (SegCntr=0; SegCntr < SSD_SEG_G; SegCntr++)
